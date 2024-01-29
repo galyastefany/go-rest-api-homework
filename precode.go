@@ -56,7 +56,9 @@ func getTasksHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(jsonTasks)
+if _, err := w.Write(jsonTask); err != nil {
+	w.WriteHeader(http.StatusInternalServerError)
+	return
 }
 
 // Обработчик для получения информации о задаче по ее ID
@@ -78,9 +80,11 @@ func getTaskByIDHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(jsonTask)
+if _, err := w.Write(jsonTask); err != nil {
+	w.WriteHeader(http.StatusInternalServerError)
+	return
 }
-
+}
 // Обработчик для создания новой задачи
 func createTaskHandler(w http.ResponseWriter, r *http.Request) {
 	// Чтение тела запроса в структуру Task
@@ -108,7 +112,6 @@ func createTaskHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	w.Write(jsonNewTask)
 }
-
 // Обработчик для обновления существующей задачи
 func updateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	// Извлечение ID из URL-параметров запроса
@@ -131,7 +134,7 @@ func updateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	// Обновление полей задачи
 	task.Description = updatedTask.Description
 	task.Note = updatedTask.Note
-	task.Application = updatedTask.Application
+	task.Applications = updatedTask.Applications
 
 	// Обновление задачи в карте задач
 	tasks[taskID] = task
@@ -172,3 +175,4 @@ func main() {
 		return
 	}
 }
+
