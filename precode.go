@@ -49,20 +49,21 @@ func getTasksHandler(w http.ResponseWriter, r *http.Request) {
 		taskList = append(taskList, task)
 	}
 	// Преобразование списка задач в формат JSON
-	jsonTasks, err := json.Marshal(taskList)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-if _, err := w.Write(jsonTask); err != nil {
-	w.WriteHeader(http.StatusInternalServerError)
-	return
+	jsonTasks, err := json.Marshal(tasks)
+if err != nil {
+    log.Println("error marshaling tasks:", err)
+    http.Error(w, "failed to marshal tasks", http.StatusInternalServerError)
+    return
 }
 
+w.Header().Set("Content-Type", "application/json")
+_, err = w.Write(jsonTasks)
+if err != nil {
+    log.Println("error writing response:", err)
+    return
+}
 // Обработчик для получения информации о задаче по ее ID
-func getTaskByIDHandler(w http.ResponseWriter, r *http.Request) {
+func getTaskByIDHandler (w http.ResponseWriter, r *http.Request) {
 	// Извлечение ID из URL-параметров запроса
 	taskID := chi.URLParam(r, "id")
 	// Поиск задачи по ID в карте задач
@@ -73,16 +74,18 @@ func getTaskByIDHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Преобразование задачи в формат JSON
-	jsonTask, err := json.Marshal(task)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	jsonTasks, err := json.Marshal(tasks)
+if err != nil {
+    log.Println("error marshaling tasks:", err)
+    http.Error(w, "failed to marshal tasks", http.StatusInternalServerError)
+    return
+}
 
 	w.Header().Set("Content-Type", "application/json")
-if _, err := w.Write(jsonTask); err != nil {
-	w.WriteHeader(http.StatusInternalServerError)
-	return
+_, err = w.Write(jsonTasks)
+if err != nil {
+    log.Println("error writing response:", err)
+    return
 }
 }
 // Обработчик для создания новой задачи
@@ -131,13 +134,8 @@ func updateTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Обновление полей задачи
-	task.Description = updatedTask.Description
-	task.Note = updatedTask.Note
-	task.Applications = updatedTask.Applications
-
 	// Обновление задачи в карте задач
-	tasks[taskID] = task
+	tasks[taskID] = updatedTask
 
 	w.WriteHeader(http.StatusOK)
 }
